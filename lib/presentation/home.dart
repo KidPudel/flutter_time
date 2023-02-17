@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_time/common/constants.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var constants = Constants.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Flutter time"),
@@ -14,7 +16,7 @@ class Home extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              color: Colors.deepPurple,
+              color: constants?.bakerMilkPink,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -24,7 +26,7 @@ class Home extends StatelessWidget {
                     onPressed: () {
                       _showSnackBar(context);
                     },
-                    child: const Text("Click"),
+                    child: Text("Click"),
                   )
                 ],
               ),
