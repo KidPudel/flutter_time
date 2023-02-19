@@ -1,13 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_time/common/constants.dart';
+import 'package:flutter_time/common/my_colors.dart';
+import 'package:flutter_time/domain/models/character.dart';
+import 'package:flutter_time/domain/use_cases/characters_use_case.dart';
+import 'package:flutter_time/internal/dependency_injection/locator.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  List<Character> characters = List.empty();
+
+  @override
   Widget build(BuildContext context) {
-    var constants = Constants.of(context);
+    var constants = MyColors.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Flutter time"),
@@ -38,10 +48,22 @@ class Home extends StatelessWidget {
   }
 
   void _showSnackBar(BuildContext context) {
+    _getCharacters();
     final snackBar = ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Navigate to character list"),
+      SnackBar(
+        content: Text(
+            "Navigate to character list, but i can tell that first is ${characters.isNotEmpty ? characters.first.fullName : "oops.. it isn't ready yet.."}"),
       ),
     );
+  }
+
+  void _getCharacters() async {
+    final charactersUseCase = locator.get<CharactersUseCase>();
+    if (characters.isEmpty) {
+      final receivedCharacters = await charactersUseCase.getCharacters();
+      setState(() {
+        characters = receivedCharacters;
+      });
+    }
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_time/common/constants.dart';
+import 'package:flutter_time/common/my_colors.dart';
 
 import 'package:flutter_time/presentation/home.dart';
 
@@ -8,7 +8,7 @@ class Application extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var constants = Constants.of(context);
+    var constants = MyColors.of(context);
     return MaterialApp(
       theme: ThemeData().copyWith(
         colorScheme: ThemeData()
