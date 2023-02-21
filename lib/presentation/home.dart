@@ -14,9 +14,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Character> characters = List.empty();
+  Color? color;
 
   @override
   Widget build(BuildContext context) {
+    _changeColor(context);
     var constants = MyColors.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -26,16 +28,14 @@ class _HomeState extends State<Home> {
         children: [
           Expanded(
             child: Container(
-              color: constants?.bakerMilkPink,
+              color: color,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text("Click to discover characters"),
                   ElevatedButton(
-                    onPressed: () {
-                      _showSnackBar(context);
-                    },
+                    onPressed: () => _getCharacters(context),
                     child: Text("Click"),
                   )
                 ],
@@ -47,9 +47,22 @@ class _HomeState extends State<Home> {
     );
   }
 
+  void _getCharacters(BuildContext context) async {
+    final charactersUseCase = locator.get<CharactersUseCase>();
+    if (characters.isEmpty) {
+      final receivedCharacters = await charactersUseCase.getCharacters();
+      setState(() {
+        characters = receivedCharacters;
+      });
+    }
+    if (context.mounted) {
+      _showSnackBar(context);
+    }
+  }
+
   void _showSnackBar(BuildContext context) {
-    _getCharacters();
-    final snackBar = ScaffoldMessenger.of(context).showSnackBar(
+    _changeColor(context);
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
             "Navigate to character list, but i can tell that first is ${characters.isNotEmpty ? characters.first.fullName : "oops.. it isn't ready yet.."}"),
@@ -57,12 +70,16 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _getCharacters() async {
-    final charactersUseCase = locator.get<CharactersUseCase>();
-    if (characters.isEmpty) {
-      final receivedCharacters = await charactersUseCase.getCharacters();
+  void _changeColor(BuildContext context) async {
+    var myColors = MyColors.of(context);
+    while (true) {
+      await Future.delayed(const Duration(seconds: 1));
       setState(() {
-        characters = receivedCharacters;
+        if (!(color == myColors?.bakerMilkPink)) {
+          color = myColors?.bakerMilkPink;
+        } else {
+          color = myColors?.selectiveYellow;
+        }
       });
     }
   }
