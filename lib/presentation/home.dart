@@ -18,8 +18,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    _changeColor(context);
-    var constants = MyColors.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Flutter time"),
@@ -35,7 +33,7 @@ class _HomeState extends State<Home> {
                 children: [
                   const Text("Click to discover characters"),
                   ElevatedButton(
-                    onPressed: () => _getCharacters(context),
+                    onPressed: () => _showSnackBar(context),
                     child: Text("Click"),
                   )
                 ],
@@ -47,20 +45,10 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _getCharacters(BuildContext context) async {
-    final charactersUseCase = locator.get<CharactersUseCase>();
-    if (characters.isEmpty) {
-      final receivedCharacters = await charactersUseCase.getCharacters();
-      setState(() {
-        characters = receivedCharacters;
-      });
-    }
-    if (context.mounted) {
-      _showSnackBar(context);
-    }
-  }
 
-  void _showSnackBar(BuildContext context) {
+
+  void _showSnackBar(BuildContext context) async {
+    await _getCharacters();
     _changeColor(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -70,8 +58,22 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _changeColor(BuildContext context) async {
-    var myColors = MyColors.of(context);
+  Future<void> _getCharacters() async {
+    final charactersUseCase = locator.get<CharactersUseCase>();
+    if (characters.isEmpty) {
+      final receivedCharacters = await charactersUseCase.getCharacters();
+      setState(() {
+        characters = receivedCharacters;
+      });
+    }
+  }
+
+  Future<void> _changeColor(BuildContext context) async {
+    MyColors? myColors;
+    if (context.mounted) {
+      myColors = MyColors.of(context);
+    }
+
     while (true) {
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
