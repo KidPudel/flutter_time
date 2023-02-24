@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter_time/common/constants.dart';
 import 'package:flutter_time/data/remote/dto/character_dto.dart';
@@ -28,8 +29,19 @@ class CharacterRepository implements ICharacterRepository {
   }
 
   @override
-  Future<CharacterDto> getCharacterFromApi(String name) {
-    // TODO: implement getCharacterFromApi
-    throw UnimplementedError();
+  Future<CharacterDto> getCharacterFromApi(String name) async {
+    final constants = Constants();
+    final url = Uri.http(constants.url, "/$name");
+    final response = await http.get(url);
+
+    CharacterDto character = CharacterDto();
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      character = CharacterDto.fromJson(body);
+
+    }
+
+    return character;
+
   }
 }

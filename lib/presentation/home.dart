@@ -4,6 +4,7 @@ import 'package:flutter_time/common/my_colors.dart';
 import 'package:flutter_time/domain/models/character.dart';
 import 'package:flutter_time/domain/use_cases/characters_use_case.dart';
 import 'package:flutter_time/internal/dependency_injection/locator.dart';
+import 'package:flutter_time/presentation/details_screen.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,76 +14,112 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<Character> characters = List.empty();
   Color? color;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Flutter time"),
-      ),
-      body: Row(
-        children: [
-          Expanded(
-            child: Container(
-              color: color,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text("Click to discover characters"),
-                  ElevatedButton(
-                    onPressed: () => _showSnackBar(context),
-                    child: Text("Click"),
-                  )
-                ],
-              ),
+    final myColors = MyColors.of(context);
+    return FutureBuilder<List<Character>>(
+      future: _getCharacters(),
+      builder: (context, AsyncSnapshot<List<Character>> characters) {
+        if (characters.hasData) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text("Flutter time"),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
-  void _showSnackBar(BuildContext context) async {
-    await _getCharacters();
-    _changeColor(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            "Navigate to character list, but i can tell that first is ${characters.isNotEmpty ? characters.first.fullName : "oops.. it isn't ready yet.."}"),
-      ),
-    );
-  }
-
-  Future<void> _getCharacters() async {
-    final charactersUseCase = locator.get<CharactersUseCase>();
-    if (characters.isEmpty) {
-      final receivedCharacters = await charactersUseCase.getCharacters();
-      setState(() {
-        characters = receivedCharacters;
-      });
-    }
-  }
-
-  Future<void> _changeColor(BuildContext context) async {
-    MyColors? myColors;
-    if (context.mounted) {
-      myColors = MyColors.of(context);
-    }
-
-    while (true) {
-      await Future.delayed(const Duration(seconds: 1));
-      setState(() {
-        if (!(color == myColors?.bakerMilkPink)) {
-          color = myColors?.bakerMilkPink;
+            body: Row(
+              children: [
+                Expanded(
+                    child: Container(
+                  color: myColors?.bakerMilkPink,
+                  child: ListView.builder(
+                    itemCount: characters.data?.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DetailsScreen(
+                                name: characters.data
+                                        ?.elementAt(index)
+                                        .fullName ??
+                                    "error",
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          child: Container(
+                            decoration: boxDecoration(
+                                backgroundColor: myColors?.spanishLavender,
+                                borderColor: Colors.black),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Container(
+                                    decoration: boxDecoration(
+                                        backgroundColor: myColors?.lightCyan,
+                                        borderColor: myColors?.selectiveYellow),
+                                    height: 100.0,
+                                    width: 100.0,
+                                    child: Image.network(
+                                        characters.data
+                                                ?.elementAt(index)
+                                                .image ??
+                                            "",
+                                        width: 100.0),
+                                  ),
+                                  SizedBox(width: 20.0),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            characters.data
+                                                    ?.elementAt(index)
+                                                    .fullName ??
+                                                "stranger",
+                                            style: TextStyle(
+                                                color: myColors?.lightCyan,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 25.0),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ))
+              ],
+            ),
+          );
         } else {
-          color = myColors?.selectiveYellow;
+          return const CircularProgressIndicator();
         }
-      });
-    }
+      },
+    );
+  }
+
+  BoxDecoration boxDecoration({Color? backgroundColor, Color? borderColor}) {
+    return BoxDecoration(
+      border: Border.all(width: 3, color: borderColor ?? Colors.black),
+      color: backgroundColor,
+    );
+  }
+
+  Future<List<Character>> _getCharacters() async {
+    final useCase = locator.get<CharactersUseCase>();
+    final character = await useCase.getCharacters();
+    return character;
   }
 }
