@@ -42,13 +42,14 @@ class _HomeState extends State<Home> {
                               builder: (context) => DetailsScreen(
                                 name: characters.data
                                         ?.elementAt(index)
-                                        .fullName ??
+                                        .name ??
                                     "error",
                               ),
                             ),
                           );
                         },
-                        child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
                           child: Container(
                             decoration: boxDecoration(
                                 backgroundColor: myColors?.spanishLavender,
@@ -56,8 +57,7 @@ class _HomeState extends State<Home> {
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Container(
                                     decoration: boxDecoration(
@@ -66,9 +66,7 @@ class _HomeState extends State<Home> {
                                     height: 100.0,
                                     width: 100.0,
                                     child: Image.network(
-                                        characters.data
-                                                ?.elementAt(index)
-                                                .image ??
+                                        characters.data?.elementAt(index).image ??
                                             "",
                                         width: 100.0),
                                   ),
@@ -112,7 +110,7 @@ class _HomeState extends State<Home> {
 
   BoxDecoration boxDecoration({Color? backgroundColor, Color? borderColor}) {
     return BoxDecoration(
-      border: Border.all(width: 3, color: borderColor ?? Colors.black),
+      border: Border.all(width: 5, color: borderColor ?? Colors.black),
       color: backgroundColor,
     );
   }

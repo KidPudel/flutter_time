@@ -12,8 +12,7 @@ class CharacterRepository implements ICharacterRepository {
     final constants = Constants();
     final url = Uri.http(constants.url, "characters");
     final response = await http.get(url);
-    List<CharacterDto> decodedResponse =
-        List.filled(0, CharacterDto(), growable: true);
+    List<CharacterDto> decodedResponse = [];
     try {
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as List<dynamic>;
@@ -31,17 +30,15 @@ class CharacterRepository implements ICharacterRepository {
   @override
   Future<CharacterDto> getCharacterFromApi(String name) async {
     final constants = Constants();
-    final url = Uri.http(constants.url, "/$name");
+    final url = Uri.http(constants.url, "character/$name");
     final response = await http.get(url);
 
     CharacterDto character = CharacterDto();
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
       character = CharacterDto.fromJson(body);
-
     }
 
     return character;
-
   }
 }
